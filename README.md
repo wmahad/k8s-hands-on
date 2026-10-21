@@ -3,7 +3,7 @@
 pnpm workspace (`apps/*`) with a strict catalog. `PORT` defaults to `3000`.
 
 - `GET /` — todo-app HTML
-- `GET /status` — timestamp + startup random string
+- `GET /status` — log file (writer appends timestamp + random string every 5s)
 - `GET /pingpong` — ping-pong `pong N` (in-memory counter)
 
 ```mermaid
@@ -15,18 +15,23 @@ flowchart TB
   subgraph k3d [k3d cluster]
     T[Traefik :80]
     IG[Ingress]
-    TA[todo-app :3000]
+    subgraph pod [todo-app pod]
+      W[log-writer]
+      TA[todo-app :3000]
+      V[(emptyDir)]
+    end
     PP[ping-pong :3000]
   end
 
   B -->|8081:80| T --> IG
   IG -->|"/pingpong"| PP
   IG -->|"/"| TA
+  W --> V --> TA
 ```
 
 | Path | App |
 | --- | --- |
-| `apps/todo-app` | Todo + `/status` |
+| `apps/todo-app` | Reader HTTP + writer (same image, two containers) |
 | `apps/ping-pong` | Counter |
 | `k8s/` | Deployments, ClusterIP Services, Ingress |
 | `examples/` | NodePort (not applied with `kubectl apply -f k8s/`) |

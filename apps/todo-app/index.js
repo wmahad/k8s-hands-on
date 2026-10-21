@@ -1,13 +1,8 @@
-const crypto = require("crypto");
+const fs = require("fs");
 const http = require("http");
 
 const port = process.env.PORT || 3000;
-const randomString = crypto.randomUUID();
-
-const status = () => ({
-  timestamp: new Date().toISOString(),
-  randomString,
-});
+const logFile = process.env.LOG_FILE || "log.txt";
 
 const page = `<!DOCTYPE html>
 <html lang="en">
@@ -60,8 +55,15 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === "GET" && path === "/status") {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(status(), null, 2));
+    fs.readFile(logFile, "utf8", (err, data) => {
+      if (err) {
+        res.writeHead(503, { "Content-Type": "text/plain" });
+        res.end("log not ready\n");
+        return;
+      }
+      res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end(data);
+    });
     return;
   }
 
@@ -70,7 +72,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  const { timestamp } = status();
   console.log(`Server started in port ${port}`);
-  console.log(`${timestamp} ${randomString}`);
 });

@@ -4,7 +4,7 @@ RUN apk upgrade --no-cache
 
 WORKDIR /app
 
-COPY package.json index.js ./
+COPY package.json index.js writer.js ./
 
 ENV PORT=3000
 EXPOSE 3000
