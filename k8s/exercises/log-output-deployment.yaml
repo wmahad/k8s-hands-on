@@ -16,14 +16,20 @@ spec:
       volumes:
         - name: logs
           emptyDir: {}
+        - name: config
+          configMap:
+            name: log-output
+            items:
+              - key: information.txt
+                path: information.txt
       containers:
         - name: log-writer
           image: log-output:latest
           imagePullPolicy: IfNotPresent
           command: ["node", "writer.js"]
-          env:
-            - name: LOG_FILE
-              value: /shared/log.txt
+          envFrom:
+            - configMapRef:
+                name: log-output
           volumeMounts:
             - name: logs
               mountPath: /shared
@@ -37,18 +43,17 @@ spec:
         - name: log-output
           image: log-output:latest
           imagePullPolicy: IfNotPresent
-          env:
-            - name: PORT
-              value: "3000"
-            - name: LOG_FILE
-              value: /shared/log.txt
-            - name: PINGPONG_URL
-              value: http://ping-pong:3000
+          envFrom:
+            - configMapRef:
+                name: log-output
           ports:
             - containerPort: 3000
           volumeMounts:
             - name: logs
               mountPath: /shared
+            - name: config
+              mountPath: /config
+              readOnly: true
           resources:
             requests:
               cpu: 50m

@@ -1,9 +1,17 @@
 const fs = require("fs");
 
-const imageFile = process.env.IMAGE_FILE || "image.jpg";
-const imageMetaFile = process.env.IMAGE_META_FILE || "image-meta.json";
-const ttlMs = Number(process.env.IMAGE_TTL_MS) || 10 * 60 * 1000;
-const picsumUrl = process.env.PICSUM_URL || "https://picsum.photos/1200";
+const env = (name) => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`missing ${name}`);
+  }
+  return value;
+};
+
+const imageFile = env("IMAGE_FILE");
+const imageMetaFile = env("IMAGE_META_FILE");
+const ttlMs = Number(env("IMAGE_TTL_MS"));
+const picsumUrl = env("PICSUM_URL");
 
 const readMeta = () => {
   try {

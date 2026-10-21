@@ -4,8 +4,18 @@ const view = require("@fastify/view");
 const pug = require("pug");
 const { prepareImage, readImage } = require("./image");
 
-const port = Number(process.env.PORT) || 3000;
-const todoBackendUrl = process.env.TODO_BACKEND_URL || "http://todo-backend:3000";
+const env = (name) => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`missing ${name}`);
+  }
+  return value;
+};
+
+const host = env("HOST");
+const port = Number(env("PORT"));
+const todosUrl = env("TODOS_URL");
+const todoMaxLength = Number(env("TODO_MAX_LENGTH"));
 
 const app = Fastify({ logger: false });
 
@@ -19,7 +29,7 @@ const start = async () => {
   app.get("/", async (_req, reply) => {
     let todos = [];
     try {
-      const res = await fetch(`${todoBackendUrl}/todos`);
+      const res = await fetch(todosUrl);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) todos = data;
@@ -27,7 +37,7 @@ const start = async () => {
     } catch {
       // todo-backend is not reachable
     }
-    return reply.view("index", { todos });
+    return reply.view("index", { todos, todoMaxLength });
   });
 
   app.get("/image", async (_req, reply) => {
@@ -45,7 +55,7 @@ const start = async () => {
     setImmediate(() => process.exit(1));
   });
 
-  await app.listen({ port, host: "0.0.0.0" });
+  await app.listen({ port, host });
   console.log(`Server started in port ${port}`);
 };
 

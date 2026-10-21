@@ -1,6 +1,16 @@
 const Fastify = require("fastify");
 
-const port = Number(process.env.PORT) || 3000;
+const env = (name) => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`missing ${name}`);
+  }
+  return value;
+};
+
+const host = env("HOST");
+const port = Number(env("PORT"));
+const todoMaxLength = Number(env("TODO_MAX_LENGTH"));
 const todos = [
   "Buy groceries",
   "Read a Kubernetes chapter",
@@ -19,14 +29,14 @@ app.post("/todos", async (req, reply) => {
     reply.code(400).send({ error: "Todo cannot be empty." });
     return;
   }
-  if (text.length > 140) {
-    reply.code(400).send({ error: "Todo must be 140 characters or less." });
+  if (text.length > todoMaxLength) {
+    reply.code(400).send({ error: `Todo must be ${todoMaxLength} characters or less.` });
     return;
   }
   todos.push(text);
   reply.code(201).send({ text });
 });
 
-app.listen({ port, host: "0.0.0.0" }).then(() => {
+app.listen({ port, host }).then(() => {
   console.log(`Server started in port ${port}`);
 });

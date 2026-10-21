@@ -15,7 +15,6 @@ RUN pnpm install --frozen-lockfile --filter ping-pong
 
 WORKDIR /repo/apps/ping-pong
 
-ENV PORT=3000
 EXPOSE 3000
 
 CMD ["node", "index.js"]

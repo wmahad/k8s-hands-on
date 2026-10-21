@@ -1,7 +1,16 @@
 const crypto = require("crypto");
 const fs = require("fs");
 
-const logFile = process.env.LOG_FILE || "log.txt";
+const env = (name) => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`missing ${name}`);
+  }
+  return value;
+};
+
+const logFile = env("LOG_FILE");
+const intervalMs = Number(env("WRITE_INTERVAL_MS"));
 const randomString = crypto.randomUUID();
 
 const writeLine = () => {
@@ -11,4 +20,4 @@ const writeLine = () => {
 };
 
 writeLine();
-setInterval(writeLine, 5000);
+setInterval(writeLine, intervalMs);

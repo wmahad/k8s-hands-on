@@ -1,6 +1,6 @@
 # k8s-hands-on
 
-Kubernetes course work on a local k3d cluster. Apps are Fastify (`PORT` defaults to `3000`) in a pnpm workspace (`apps/*`).
+Kubernetes course work on a local k3d cluster. Apps are Fastify in a pnpm workspace (`apps/*`). Ports, URLs, and other settings come from ConfigMaps, not from source.
 
 ## Cluster
 
@@ -35,6 +35,7 @@ Two Ingress objects (one per namespace) share Traefik. More specific paths (`/pi
 - **PV / PVC** — cluster-scoped hostPath PV in `k8s/admin/` (`Retain`, class `manual`). Claim `shared-data` is in `project` for the Picsum cache. Recreate the PV if a deleted claim leaves it `Released`.
 - **emptyDir** — log-output writer and reader share a file in the same pod.
 - **ClusterIP** — in-namespace DNS (`http://ping-pong:3000`, `http://todo-backend:3000`).
+- **ConfigMap** — ports, URLs, and other app settings. Log-output also mounts `information.txt` and sets `MESSAGE`.
 
 ```mermaid
 flowchart TB
@@ -93,7 +94,7 @@ flowchart TB
 - `GET /todos` / `POST /todos` — todo API
 - `GET /image` — Picsum, 10 minute cache, one stale serve, then refresh
 - `GET /crash` — exit the todo-app container (image stays on the PV)
-- `GET /status` — last log line + `Ping / Pongs: N`
+- `GET /status` — ConfigMap file + `MESSAGE`, last log line, `Ping / Pongs: N`
 - `GET /pingpong` — `pong N`
 
 ## Run

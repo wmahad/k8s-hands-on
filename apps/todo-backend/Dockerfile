@@ -15,7 +15,6 @@ RUN pnpm install --frozen-lockfile --filter todo-backend
 
 WORKDIR /repo/apps/todo-backend
 
-ENV PORT=3000
 EXPOSE 3000
 
 CMD ["node", "index.js"]

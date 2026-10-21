@@ -17,9 +17,9 @@ spec:
         - name: ping-pong
           image: ping-pong:latest
           imagePullPolicy: IfNotPresent
-          env:
-            - name: PORT
-              value: "3000"
+          envFrom:
+            - configMapRef:
+                name: ping-pong
           ports:
             - containerPort: 3000
           resources:

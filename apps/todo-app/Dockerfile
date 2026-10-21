@@ -15,7 +15,6 @@ RUN pnpm install --frozen-lockfile --filter todo-app
 
 WORKDIR /repo/apps/todo-app
 
-ENV PORT=3000
 EXPOSE 3000
 
 CMD ["node", "index.js"]

@@ -15,7 +15,6 @@ RUN pnpm install --frozen-lockfile --filter log-output
 
 WORKDIR /repo/apps/log-output
 
-ENV PORT=3000
 EXPOSE 3000
 
 CMD ["node", "index.js"]

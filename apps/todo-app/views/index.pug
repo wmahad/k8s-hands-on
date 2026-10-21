@@ -19,8 +19,8 @@ html(lang="en")
     form#todo-form
       input#todo-input(
         type="text"
-        maxlength="140"
-        placeholder="Add a todo (max 140 characters)"
+        maxlength=todoMaxLength
+        placeholder=`Add a todo (max ${todoMaxLength} characters)`
         autocomplete="off"
       )
       button(type="submit") Send
@@ -39,8 +39,8 @@ html(lang="en")
           error.textContent = "Todo cannot be empty.";
           return;
         }
-        if (text.length > 140) {
-          error.textContent = "Todo must be 140 characters or less.";
+        if (text.length > #{todoMaxLength}) {
+          error.textContent = "Todo must be #{todoMaxLength} characters or less.";
           return;
         }
         error.textContent = "";

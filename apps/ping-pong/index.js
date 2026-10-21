@@ -1,6 +1,15 @@
 const Fastify = require("fastify");
 
-const port = Number(process.env.PORT) || 3000;
+const env = (name) => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`missing ${name}`);
+  }
+  return value;
+};
+
+const host = env("HOST");
+const port = Number(env("PORT"));
 let counter = 0;
 
 const app = Fastify({ logger: false });
@@ -16,6 +25,6 @@ app.get("/pings", async (_req, reply) => {
   reply.type("text/plain").send(String(counter));
 });
 
-app.listen({ port, host: "0.0.0.0" }).then(() => {
+app.listen({ port, host }).then(() => {
   console.log(`Server started in port ${port}`);
 });

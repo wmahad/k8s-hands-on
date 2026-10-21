@@ -21,15 +21,9 @@ spec:
         - name: todo-app
           image: todo-app:latest
           imagePullPolicy: IfNotPresent
-          env:
-            - name: PORT
-              value: "3000"
-            - name: TODO_BACKEND_URL
-              value: http://todo-backend:3000
-            - name: IMAGE_FILE
-              value: /shared/image.jpg
-            - name: IMAGE_META_FILE
-              value: /shared/image-meta.json
+          envFrom:
+            - configMapRef:
+                name: todo-app
           ports:
             - containerPort: 3000
           volumeMounts:

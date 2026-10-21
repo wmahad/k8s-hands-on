@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-output
+  namespace: exercises
+data:
+  HOST: "0.0.0.0"
+  PORT: "3000"
+  LOG_FILE: /shared/log.txt
+  PINGS_URL: http://ping-pong:3000/pings
+  INFORMATION_FILE: /config/information.txt
+  WRITE_INTERVAL_MS: "5000"
+  MESSAGE: hello world
+  information.txt: this text is from file
