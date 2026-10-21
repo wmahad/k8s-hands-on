@@ -3,4 +3,7 @@ packages:
 
 catalogMode: strict
 
-catalog: {}
+catalog:
+  "@fastify/view": "^11.1.1"
+  fastify: "^5.7.4"
+  pug: "^3.0.3"

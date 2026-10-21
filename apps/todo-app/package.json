@@ -7,5 +7,10 @@
   "scripts": {
     "start": "node index.js",
     "write": "node writer.js"
+  },
+  "dependencies": {
+    "@fastify/view": "catalog:",
+    "fastify": "catalog:",
+    "pug": "catalog:"
   }
 }

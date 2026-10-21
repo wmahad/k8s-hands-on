@@ -1,10 +1,12 @@
 # todo-kubs
 
-pnpm workspace (`apps/*`) with a strict catalog. `PORT` defaults to `3000`.
+pnpm workspace (`apps/*`) with a strict catalog. Fastify apps. `PORT` defaults to `3000`.
 
-- `GET /` — todo-app HTML
-- `GET /status` — log file (writer appends timestamp + random string every 5s)
-- `GET /pingpong` — ping-pong `pong N` (in-memory counter)
+- `GET /` — todo UI + Picsum image
+- `GET /status` — latest log line + ping-pong count
+- `GET /image` — cached Picsum image (10 minutes, one stale serve, then refresh)
+- `GET /crash` — exits the HTTP container (image stays on the PV)
+- `GET /pingpong` — `pong N` on the shared volume
 
 ```mermaid
 flowchart TB
@@ -15,10 +17,10 @@ flowchart TB
   subgraph k3d [k3d cluster]
     T[Traefik :80]
     IG[Ingress]
-    subgraph pod [todo-app pod]
+    PV[(PV hostPath)]
+    subgraph tapod [todo-app pod]
       W[log-writer]
       TA[todo-app :3000]
-      V[(emptyDir)]
     end
     PP[ping-pong :3000]
   end
@@ -26,28 +28,29 @@ flowchart TB
   B -->|8081:80| T --> IG
   IG -->|"/pingpong"| PP
   IG -->|"/"| TA
-  W --> V --> TA
+  W --> PV
+  TA --> PV
+  PP --> PV
 ```
 
 | Path | App |
 | --- | --- |
-| `apps/todo-app` | Reader HTTP + writer (same image, two containers) |
+| `apps/todo-app` | Writer + HTTP reader |
 | `apps/ping-pong` | Counter |
-| `k8s/` | Deployments, ClusterIP Services, Ingress |
-| `examples/` | NodePort (not applied with `kubectl apply -f k8s/`) |
+| `k8s/` | App manifests + PVC |
+| `k8s/admin/` | PersistentVolume (not applied by `kubectl apply -f k8s/`) |
+| `examples/` | NodePort example |
 
-Shared dependency versions go in `pnpm-workspace.yaml` `catalog` and are referenced as `"catalog:"`.
+RWO volume: ping-pong is pinned to the same node as todo-app.
 
 ## Run
 
 ```bash
 pnpm install
-pnpm start:todo-app
-pnpm start:ping-pong
-
-docker build -t todo-app:latest ./apps/todo-app
-docker build -t ping-pong:latest ./apps/ping-pong
+docker build -f apps/todo-app/Dockerfile -t todo-app:latest .
+docker build -f apps/ping-pong/Dockerfile -t ping-pong:latest .
 k3d image import todo-app:latest ping-pong:latest -c k3s-default
+kubectl apply -f k8s/admin/
 kubectl apply -f k8s/
 ```
 

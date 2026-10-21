@@ -13,8 +13,9 @@ spec:
         app: todo-app
     spec:
       volumes:
-        - name: log
-          emptyDir: {}
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-data
       containers:
         - name: log-writer
           image: todo-app:latest
@@ -24,7 +25,7 @@ spec:
             - name: LOG_FILE
               value: /shared/log.txt
           volumeMounts:
-            - name: log
+            - name: shared-data
               mountPath: /shared
           resources:
             requests:
@@ -41,10 +42,16 @@ spec:
               value: "3000"
             - name: LOG_FILE
               value: /shared/log.txt
+            - name: PING_FILE
+              value: /shared/pingpong.txt
+            - name: IMAGE_FILE
+              value: /shared/image.jpg
+            - name: IMAGE_META_FILE
+              value: /shared/image-meta.json
           ports:
             - containerPort: 3000
           volumeMounts:
-            - name: log
+            - name: shared-data
               mountPath: /shared
           resources:
             requests:

@@ -1,0 +1,16 @@
+# Cluster admin resource. Not applied by `kubectl apply -f k8s/`.
+# Apply with: kubectl apply -f k8s/admin/
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: shared-data
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /var/tmp/todo-kubs-shared
+    type: DirectoryOrCreate

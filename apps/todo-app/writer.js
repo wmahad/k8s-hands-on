@@ -5,7 +5,7 @@ const logFile = process.env.LOG_FILE || "log.txt";
 const randomString = crypto.randomUUID();
 
 const writeLine = () => {
-  const line = `${new Date().toISOString()} ${randomString}\n`;
+  const line = `${new Date().toISOString()}: ${randomString}.\n`;
   fs.appendFileSync(logFile, line);
   console.log(line.trimEnd());
 };

@@ -1,0 +1,52 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Todo app
+    style.
+      body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+      h1 { font-size: 1.5rem; }
+      img { width: 100%; height: auto; margin: 1rem 0; }
+      form { display: flex; gap: 0.5rem; margin: 1rem 0; }
+      input { flex: 1; padding: 0.5rem; }
+      button { padding: 0.5rem 0.75rem; }
+      li { margin: 0.35rem 0; }
+      .error { color: #b00020; min-height: 1.25rem; }
+  body
+    h1 Todo app
+    img(src="/image" alt="Random picture from Lorem Picsum")
+    form#todo-form
+      input#todo-input(
+        type="text"
+        maxlength="140"
+        placeholder="Add a todo (max 140 characters)"
+        autocomplete="off"
+      )
+      button(type="submit") Send
+    p#todo-error.error
+    ul#todo-list
+      each todo in todos
+        li= todo
+    script.
+      const form = document.getElementById("todo-form");
+      const input = document.getElementById("todo-input");
+      const error = document.getElementById("todo-error");
+      const list = document.getElementById("todo-list");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const text = input.value.trim();
+        if (!text) {
+          error.textContent = "Todo cannot be empty.";
+          return;
+        }
+        if (text.length > 140) {
+          error.textContent = "Todo must be 140 characters or less.";
+          return;
+        }
+        error.textContent = "";
+        const item = document.createElement("li");
+        item.textContent = text;
+        list.appendChild(item);
+        input.value = "";
+      });

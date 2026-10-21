@@ -1,10 +1,19 @@
 FROM node:26-alpine
 
-RUN apk upgrade --no-cache
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 
-WORKDIR /app
+RUN apk upgrade --no-cache \
+    && npm install -g corepack \
+    && corepack enable
 
-COPY package.json index.js writer.js ./
+WORKDIR /repo
+
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
+COPY apps/todo-app ./apps/todo-app
+
+RUN pnpm install --frozen-lockfile --filter todo-app
+
+WORKDIR /repo/apps/todo-app
 
 ENV PORT=3000
 EXPOSE 3000

@@ -1,76 +1,72 @@
 const fs = require("fs");
-const http = require("http");
+const path = require("path");
+const Fastify = require("fastify");
+const view = require("@fastify/view");
+const pug = require("pug");
+const { prepareImage, readImage } = require("./image");
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 const logFile = process.env.LOG_FILE || "log.txt";
+const pingFile = process.env.PING_FILE || "pingpong.txt";
 
-const page = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Todo app</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
-    h1 { font-size: 1.5rem; }
-    form { display: flex; gap: 0.5rem; }
-    input { flex: 1; padding: 0.5rem; }
-    button { padding: 0.5rem 0.75rem; }
-    li { margin: 0.35rem 0; }
-  </style>
-</head>
-<body>
-  <h1>Todo app</h1>
-  <form id="todo-form">
-    <input id="todo-input" type="text" placeholder="Add a todo" autocomplete="off">
-    <button type="submit">Add</button>
-  </form>
-  <ul id="todo-list"></ul>
-  <script>
-    const form = document.getElementById("todo-form");
-    const input = document.getElementById("todo-input");
-    const list = document.getElementById("todo-list");
+const todos = [
+  "Buy groceries",
+  "Read a Kubernetes chapter",
+  "Walk the dog",
+];
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-      const item = document.createElement("li");
-      item.textContent = text;
-      list.appendChild(item);
-      input.value = "";
-    });
-  </script>
-</body>
-</html>
-`;
+const app = Fastify({ logger: false });
 
-const server = http.createServer((req, res) => {
-  const path = new URL(req.url, `http://${req.headers.host}`).pathname;
+const start = async () => {
+  await app.register(view, {
+    engine: { pug },
+    root: path.join(__dirname, "views"),
+    viewExt: "pug",
+  });
 
-  if (req.method === "GET" && path === "/") {
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(page);
-    return;
-  }
+  app.get("/", async (_req, reply) => {
+    return reply.view("index", { todos });
+  });
 
-  if (req.method === "GET" && path === "/status") {
-    fs.readFile(logFile, "utf8", (err, data) => {
-      if (err) {
-        res.writeHead(503, { "Content-Type": "text/plain" });
-        res.end("log not ready\n");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end(data);
-    });
-    return;
-  }
+  app.get("/image", async (_req, reply) => {
+    try {
+      await prepareImage();
+      const { buffer, contentType } = readImage();
+      reply.type(contentType).send(buffer);
+    } catch {
+      reply.code(502).send("could not load image\n");
+    }
+  });
 
-  res.writeHead(404, { "Content-Type": "text/plain" });
-  res.end("Not found\n");
-});
+  app.get("/crash", async (_req, reply) => {
+    reply.send("crashing\n");
+    setImmediate(() => process.exit(1));
+  });
 
-server.listen(port, () => {
+  app.get("/status", async (_req, reply) => {
+    let data;
+    try {
+      data = fs.readFileSync(logFile, "utf8");
+    } catch {
+      reply.code(503).send("log not ready\n");
+      return;
+    }
+
+    const lines = data.trim().split("\n").filter(Boolean);
+    const last = lines[lines.length - 1] || "";
+    let pings = "0";
+    try {
+      const raw = fs.readFileSync(pingFile, "utf8").trim();
+      if (raw) pings = raw;
+    } catch {
+      // ping-pong has not written yet
+    }
+
+    reply.type("text/plain; charset=utf-8").send(`${last}\nPing / Pongs: ${pings}\n`);
+  });
+
+  await app.listen({ port, host: "0.0.0.0" });
   console.log(`Server started in port ${port}`);
-});
+};
+
+start();
