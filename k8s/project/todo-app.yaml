@@ -1,3 +1,45 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-data
+  namespace: project
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  volumeName: shared-data
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-app
+  namespace: project
+data:
+  HOST: "0.0.0.0"
+  PORT: "3000"
+  TODOS_URL: http://todo-backend:3000/todos
+  TODO_MAX_LENGTH: "140"
+  IMAGE_FILE: /shared/image.jpg
+  IMAGE_META_FILE: /shared/image-meta.json
+  IMAGE_TTL_MS: "600000"
+  PICSUM_URL: https://picsum.photos/1200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-app
+  namespace: project
+spec:
+  type: ClusterIP
+  selector:
+    app: todo-app
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

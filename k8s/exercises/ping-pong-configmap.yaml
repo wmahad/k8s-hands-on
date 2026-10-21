@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ping-pong
-  namespace: exercises
-data:
-  HOST: "0.0.0.0"
-  PORT: "3000"

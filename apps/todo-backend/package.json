@@ -2,12 +2,13 @@
   "name": "todo-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "In-memory todo API",
+  "description": "Todo API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "fastify": "catalog:"
+    "fastify": "catalog:",
+    "pg": "catalog:"
   }
 }
