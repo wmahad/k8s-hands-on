@@ -1,6 +1,6 @@
 # NodePort (old access)
 
-This folder is **not** applied by `kubectl apply -f k8s/`.
+This folder is not applied with the app manifests.
 
 Before Ingress, the app was reached through a NodePort Service. k3d mapped host **8082** to NodePort **30080**.
 
@@ -40,7 +40,7 @@ flowchart TB
 
 ## Apply
 
-The Deployment (and ClusterIP Service) must already exist from `kubectl apply -f k8s/`.
+The Deployment (and ClusterIP Service) must already exist in the `project` namespace.
 
 ```bash
 kubectl apply -f examples/nodeport-service.yaml

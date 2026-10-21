@@ -5,6 +5,7 @@
   "scripts": {
     "start:todo-app": "pnpm --filter todo-app start",
     "start:todo-backend": "pnpm --filter todo-backend start",
+    "start:log-output": "pnpm --filter log-output start",
     "start:ping-pong": "pnpm --filter ping-pong start"
   }
 }

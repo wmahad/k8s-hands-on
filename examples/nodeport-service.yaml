@@ -1,9 +1,9 @@
-# Educational only. Not applied by `kubectl apply -f k8s/`.
-# Apply with: kubectl apply -f examples/nodeport-service.yaml
+# Educational only. Apply with: kubectl apply -f examples/nodeport-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: todo-app-nodeport
+  namespace: project
 spec:
   type: NodePort
   selector:

@@ -1,5 +1,4 @@
-# Cluster admin resource. Not applied by `kubectl apply -f k8s/`.
-# Apply with: kubectl apply -f k8s/admin/
+# Cluster admin resource. Apply with: kubectl apply -f k8s/admin/
 apiVersion: v1
 kind: PersistentVolume
 metadata:

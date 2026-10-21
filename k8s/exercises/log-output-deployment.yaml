@@ -1,31 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-app
+  name: log-output
+  namespace: exercises
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: todo-app
+      app: log-output
   template:
     metadata:
       labels:
-        app: todo-app
+        app: log-output
     spec:
       volumes:
-        - name: shared-data
-          persistentVolumeClaim:
-            claimName: shared-data
+        - name: logs
+          emptyDir: {}
       containers:
         - name: log-writer
-          image: todo-app:latest
+          image: log-output:latest
           imagePullPolicy: IfNotPresent
           command: ["node", "writer.js"]
           env:
             - name: LOG_FILE
               value: /shared/log.txt
           volumeMounts:
-            - name: shared-data
+            - name: logs
               mountPath: /shared
           resources:
             requests:
@@ -34,8 +34,8 @@ spec:
             limits:
               cpu: 100m
               memory: 64Mi
-        - name: todo-app
-          image: todo-app:latest
+        - name: log-output
+          image: log-output:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
@@ -44,16 +44,10 @@ spec:
               value: /shared/log.txt
             - name: PINGPONG_URL
               value: http://ping-pong:3000
-            - name: TODO_BACKEND_URL
-              value: http://todo-backend:3000
-            - name: IMAGE_FILE
-              value: /shared/image.jpg
-            - name: IMAGE_META_FILE
-              value: /shared/image-meta.json
           ports:
             - containerPort: 3000
           volumeMounts:
-            - name: shared-data
+            - name: logs
               mountPath: /shared
           resources:
             requests:

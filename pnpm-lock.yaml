@@ -203,6 +203,12 @@ importers:
 
   .: {}
 
+  apps/log-output:
+    dependencies:
+      fastify:
+        specifier: 'catalog:'
+        version: 5.12.7
+
   apps/ping-pong:
     dependencies:
       fastify:

@@ -1,20 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-backend
+  name: ping-pong
+  namespace: exercises
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: todo-backend
+      app: ping-pong
   template:
     metadata:
       labels:
-        app: todo-backend
+        app: ping-pong
     spec:
       containers:
-        - name: todo-backend
-          image: todo-backend:latest
+        - name: ping-pong
+          image: ping-pong:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
