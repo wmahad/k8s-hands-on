@@ -1,0 +1,6 @@
+packages:
+  - "apps/*"
+
+catalogMode: strict
+
+catalog: {}
