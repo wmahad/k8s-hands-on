@@ -4,6 +4,7 @@
   "packageManager": "pnpm@12.14.0",
   "scripts": {
     "start:todo-app": "pnpm --filter todo-app start",
+    "start:todo-backend": "pnpm --filter todo-backend start",
     "start:ping-pong": "pnpm --filter ping-pong start"
   }
 }

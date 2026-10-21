@@ -221,6 +221,12 @@ importers:
         specifier: 'catalog:'
         version: 3.0.4
 
+  apps/todo-backend:
+    dependencies:
+      fastify:
+        specifier: 'catalog:'
+        version: 5.12.7
+
 packages:
 
   '@babel/helper-string-parser@7.29.7':
