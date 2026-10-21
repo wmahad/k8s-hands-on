@@ -1,8 +1,12 @@
-FROM node:22-alpine
+FROM node:26-alpine
+
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
+RUN apk upgrade --no-cache \
+    && npm install -g corepack \
+    && corepack enable
 
 WORKDIR /app
-
-RUN corepack enable
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
