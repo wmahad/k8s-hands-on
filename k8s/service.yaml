@@ -3,10 +3,9 @@ kind: Service
 metadata:
   name: todo-app
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: todo-app
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30080

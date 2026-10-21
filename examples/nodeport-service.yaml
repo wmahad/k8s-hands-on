@@ -1,0 +1,14 @@
+# Educational only. Not applied by `kubectl apply -f k8s/`.
+# Apply with: kubectl apply -f examples/nodeport-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-app-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: todo-app
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30080
