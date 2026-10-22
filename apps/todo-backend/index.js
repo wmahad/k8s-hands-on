@@ -12,6 +12,7 @@ const env = (name) => {
 const host = env("HOST");
 const port = Number(env("PORT"));
 const todoMaxLength = Number(env("TODO_MAX_LENGTH"));
+const logLevel = env("LOG_LEVEL");
 env("PGHOST");
 env("PGPORT");
 env("PGUSER");
@@ -52,7 +53,7 @@ const start = async () => {
     ]);
   }
 
-  const app = Fastify({ logger: false });
+  const app = Fastify({ logger: { level: logLevel } });
 
   app.get("/todos", async (_req, reply) => {
     const result = await pool.query("SELECT text FROM todos ORDER BY id");
@@ -61,17 +62,30 @@ const start = async () => {
 
   app.post("/todos", async (req, reply) => {
     const text = typeof req.body?.text === "string" ? req.body.text.trim() : "";
+    req.log.info({ event: "todo_received", text, length: text.length }, "todo received");
     if (!text) {
+      req.log.warn({ event: "todo_rejected", reason: "empty", text }, "todo rejected");
       reply.code(400).send({ error: "Todo cannot be empty." });
       return;
     }
     if (text.length > todoMaxLength) {
+      req.log.warn(
+        {
+          event: "todo_rejected",
+          reason: "too_long",
+          text,
+          length: text.length,
+          maxLength: todoMaxLength,
+        },
+        "todo rejected",
+      );
       reply.code(400).send({
         error: `Todo must be ${todoMaxLength} characters or less.`,
       });
       return;
     }
     await pool.query("INSERT INTO todos (text) VALUES ($1)", [text]);
+    req.log.info({ event: "todo_accepted", text, length: text.length }, "todo accepted");
     reply.code(201).send({ text });
   });
 

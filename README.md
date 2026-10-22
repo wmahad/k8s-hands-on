@@ -39,6 +39,7 @@ Two Ingress objects (one per namespace) share Traefik. More specific paths (`/pi
 - **Secret + ConfigMap** — Postgres user/db/host; password is a Secret.
 - **StatefulSet** — one Postgres replica in `exercises` (ping-pong counter) and one in `project` (todos).
 - **CronJob** — every hour, POST `Read <wikipedia URL>` to todo-backend.
+- **Logging** — Helm in `k8s/monitoring/`: Loki, Grafana, and Grafana Kubernetes Monitoring (Alloy). Prometheus is omitted here; Loki is what shows todo request logs.
 
 ```mermaid
 flowchart TB
@@ -65,6 +66,11 @@ flowchart TB
       TPG[(postgres STS)]
       CJ[wiki-todo CronJob]
     end
+    subgraph monitoringNs [namespace monitoring]
+      AL[Alloy]
+      LK[(Loki)]
+      GF[Grafana]
+    end
   end
 
   B -->|8081:80| T
@@ -81,6 +87,9 @@ flowchart TB
   CJ -->|"POST /todos"| TB
   W --> LO
   TA --> PV
+  AL --> TB
+  AL --> LK
+  GF --> LK
 ```
 
 | Path | What |
@@ -88,6 +97,7 @@ flowchart TB
 | `k8s/admin/` | PersistentVolume |
 | `k8s/exercises/` | One file per app (ConfigMap + Service + Deployment/STS) |
 | `k8s/project/` | Same, plus wiki-todo CronJob (`wiki-todo.sh`) |
+| `k8s/monitoring/` | Helm values: Loki, Grafana, k8s-monitoring |
 | `examples/` | NodePort Service |
 
 ## Apps
@@ -118,8 +128,10 @@ k3d image import log-output:latest ping-pong:latest todo-app:latest todo-backend
 kubectl apply -f k8s/admin/
 kubectl apply -k k8s/exercises
 kubectl apply -k k8s/project
+./k8s/monitoring/install.sh
 ```
 
 - http://127.0.0.1:8081/
 - http://127.0.0.1:8081/status
 - http://127.0.0.1:8081/pingpong
+- http://localhost:8081/grafana — admin / admin. Explore Loki: `{namespace="project"} |= "todo_rejected"`

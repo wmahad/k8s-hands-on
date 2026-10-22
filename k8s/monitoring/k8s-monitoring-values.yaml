@@ -1,0 +1,28 @@
+cluster:
+  name: k3s-default
+
+destinations:
+  loki:
+    type: loki
+    url: http://loki-gateway.monitoring.svc:80/loki/api/v1/push
+
+podLogsViaLoki:
+  enabled: true
+  collector: alloy-logs
+  destinations:
+    - loki
+
+clusterEvents:
+  enabled: true
+  collector: alloy-singleton
+  destinations:
+    - loki
+
+clusterMetrics:
+  enabled: false
+
+collectors:
+  alloy-logs:
+    presets: [filesystem-log-reader, daemonset]
+  alloy-singleton:
+    presets: [singleton]

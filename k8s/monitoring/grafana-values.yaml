@@ -1,0 +1,79 @@
+adminUser: admin
+adminPassword: admin
+
+persistence:
+  enabled: false
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki-gateway.monitoring.svc:80
+        isDefault: true
+
+grafana.ini:
+  server:
+    domain: localhost
+    root_url: http://localhost:8081/grafana
+    serve_from_sub_path: true
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hosts:
+    - localhost
+  path: /grafana
+  pathType: Prefix
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: default
+        orgId: 1
+        folder: ""
+        type: file
+        disableDeletion: false
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+    todo-backend-logs:
+      json: |
+        {
+          "annotations": { "list": [] },
+          "editable": true,
+          "fiscalYearStartMonth": 0,
+          "graphTooltip": 0,
+          "id": null,
+          "links": [],
+          "panels": [
+            {
+              "datasource": { "type": "loki", "uid": "Loki" },
+              "gridPos": { "h": 16, "w": 24, "x": 0, "y": 0 },
+              "id": 1,
+              "options": { "dedupStrategy": "none", "enableLogDetails": true, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
+              "targets": [
+                {
+                  "datasource": { "type": "loki", "uid": "Loki" },
+                  "expr": "{namespace=\"project\"} |= \"todo_rejected\" or {namespace=\"project\"} |= \"todo_received\"",
+                  "queryType": "range",
+                  "refId": "A"
+                }
+              ],
+              "title": "Todo backend requests",
+              "type": "logs"
+            }
+          ],
+          "schemaVersion": 39,
+          "tags": ["todos"],
+          "templating": { "list": [] },
+          "time": { "from": "now-1h", "to": "now" },
+          "timezone": "browser",
+          "title": "Todo backend logs",
+          "uid": "todo-backend-logs"
+        }
